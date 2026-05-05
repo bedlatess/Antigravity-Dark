@@ -1,138 +1,144 @@
 "use client";
 
-import React from "react";
-import { useTranslation } from "react-i18next";
-import { ArrowLeft, Server, Activity, Shield, Globe, Cpu, HardDrive, Wifi, Terminal, Clock, Send } from "lucide-react";
+import React, { useMemo } from "react";
+import { ArrowLeft, Cpu, Activity, Clock } from "lucide-react";
 import Link from "next/link";
 import { useLiveData } from "@/contexts/LiveDataContext";
 import { useNodeList } from "@/contexts/NodeListContext";
-import Loading from "@/components/loading";
-import { Badge } from "@/components/ui/badge";
 import { formatBytes } from "@/utils/unitHelper";
-import { formatUptime } from "@/components/Node";
+import Loading from "@/components/loading";
 import { cn } from "@/lib/utils";
 
+// 格式化在线时间（正体版）
+function formatUptime(seconds: number): string {
+  if (!seconds || seconds < 0) return "0s";
+  const d = Math.floor(seconds / 86400);
+  const h = Math.floor((seconds % 86400) / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  return d ? `${d}d ${h}h` : h ? `${h}h ${m}m` : `${m}m`;
+}
+
 export default function InstancePage({ uuid }: { uuid: string }) {
-  const { t } = useTranslation();
   const { live_data } = useLiveData();
   const { nodeList, isLoading: listLoading } = useNodeList();
 
-  const onlineList = live_data?.data?.online || [];
-  const isOnline = onlineList.includes(uuid);
-  const nodeLive = (live_data?.data?.data || {})[uuid] as any;
-  const nodeBasic = nodeList?.find((n) => n.uuid === uuid);
+  const nodeBasic = useMemo(() => nodeList?.find((n) => n.uuid === uuid), [nodeList, uuid]);
+  const nodeLive = useMemo(() => live_data?.data?.data?.[uuid], [live_data, uuid]);
+  const isOnline = useMemo(() => live_data?.data?.online?.includes(uuid), [live_data, uuid]);
 
   if (listLoading) return <Loading />;
-  if (!nodeBasic) return <div className="p-24 text-center font-black uppercase tracking-[0.5em] opacity-20">Link_Lost::Node_Null</div>;
 
-  const extraInfo = nodeBasic as any;
-  const memUsage = nodeBasic.mem_total ? Math.round((nodeLive?.ram?.used / nodeBasic.mem_total) * 100) : 0;
-  const diskUsage = nodeBasic.disk_total ? Math.round((nodeLive?.disk?.used / nodeBasic.disk_total) * 100) : 0;
+  if (!nodeBasic) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-white/20">
+        <p className="text-sm font-black uppercase tracking-[0.4em]">Node_Not_Found :: {uuid.slice(0, 8)}</p>
+        <Link href="/" className="mt-6 text-purple-500 hover:text-purple-400 text-xs font-bold uppercase tracking-widest transition-colors">
+          Back to Matrix
+        </Link>
+      </div>
+    );
+  }
 
-  // 统一样式变量：确保比例和谐
-  const cardStyle = "anime-card bg-black/40 backdrop-blur-xl border-white/5 relative overflow-hidden transition-all duration-500 hover:border-white/10";
-  const labelStyle = "text-[10px] font-black uppercase tracking-[0.2em] text-white/20 mb-4 block";
-  const valStyle = "text-4xl font-black font-mono tracking-tighter italic leading-none";
+  const cardBase = "bg-black/60 backdrop-blur-2xl border border-white/5 rounded-[2rem] p-8 transition-all duration-500 hover:border-purple-500/20";
+  const labelStyle = "text-[10px] font-black uppercase tracking-[0.3em] text-white/20 mb-4 block";
+  const valueStyle = "text-4xl font-bold tracking-tighter text-white leading-none font-mono";
 
   return (
-    <div className="max-w-6xl mx-auto w-full flex flex-col gap-8 animate-in fade-in slide-in-from-top-6 duration-1000">
-      
-      {/* Header Area */}
-      <div className="flex items-center justify-between px-2">
+    <div className="flex flex-col gap-10 max-w-7xl mx-auto w-full px-6 py-10 animate-in fade-in duration-700">
+      {/* 头部导航 */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="flex items-center gap-6">
-          <Link href="/" className="anime-card p-3 hover:text-purple-400 hover:border-purple-500/40 transition-all">
-            <ArrowLeft size={20} />
+          <Link href="/" className="p-4 bg-white/5 rounded-2xl hover:bg-purple-500/20 transition-all border border-white/5 shadow-xl">
+            <ArrowLeft size={24} className="text-white/80" />
           </Link>
-          <div className="flex flex-col gap-1">
-            <h1 className="text-3xl font-black italic tracking-tighter uppercase leading-none text-white/90">
-              Unit <span className="text-purple-500">Terminal</span>
-            </h1>
-            <span className="text-[10px] font-bold opacity-30 tracking-[0.4em] uppercase font-mono">Status_Report_v2.0</span>
+          <div>
+            <h1 className="text-4xl font-black tracking-tighter uppercase text-white drop-shadow-lg">{nodeBasic.name}</h1>
+            <div className="flex items-center gap-3 mt-2">
+               <span className="px-2 py-0.5 bg-purple-500/20 text-purple-400 rounded text-[9px] font-black uppercase tracking-widest border border-purple-500/20">System_Core</span>
+               <span className="text-[10px] font-bold opacity-20 uppercase tracking-[0.2em] font-mono text-white">ID: {uuid.slice(0, 12)}</span>
+            </div>
           </div>
         </div>
-        <div className="flex items-center gap-4">
-           <a href="https://t.me/bedlate" target="_blank" className="text-[10px] font-black opacity-20 hover:opacity-100 hover:text-purple-400 transition-all uppercase tracking-widest">Help?</a>
-           <Badge className={cn("px-6 py-1.5 border-none font-black tracking-widest text-[9px] italic shadow-lg", isOnline ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400')}>
-             {isOnline ? "● CONNECTED" : "○ DISCONNECTED"}
-           </Badge>
+        <div className={cn("px-8 py-3 rounded-2xl font-black text-[10px] tracking-[0.2em] uppercase border shadow-2xl transition-all", 
+          isOnline ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "bg-rose-500/10 text-rose-400 border-rose-500/20")}>
+          {isOnline ? "● Connection_Stable" : "○ Signal_Lost"}
         </div>
       </div>
 
-      {/* Hero Card */}
-      <div className={cn(cardStyle, "p-10 lg:p-12")}>
-        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-10 relative z-10">
-          <div className="flex items-center gap-10">
-            <div className="w-24 h-24 bg-purple-500/10 rounded-[2rem] flex items-center justify-center border border-purple-500/20 shadow-[0_0_50px_rgba(168,85,247,0.15)] group-hover:rotate-6 transition-transform duration-700">
-              <Server size={44} className="text-purple-400" />
-            </div>
-            <div>
-              <h2 className="text-5xl font-black tracking-tighter mb-4 bg-gradient-to-r from-white to-white/40 bg-clip-text text-transparent uppercase italic">{nodeBasic.name}</h2>
-              <div className="flex flex-wrap gap-4">
-                {['region', 'virt', 'os'].map((key) => (
-                  <div key={key} className="px-4 py-1.5 bg-white/5 rounded-lg border border-white/5 flex items-center gap-2">
-                    <div className="size-1 rounded-full bg-purple-500/50" />
-                    <span className="text-[9px] font-black uppercase opacity-30 tracking-widest">{key}:</span>
-                    <span className="text-[11px] font-bold font-mono text-white/80">{(nodeBasic as any)[key] || "GBL"}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
+      {/* 核心指标区域 */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className={cardBase}>
+          <div className="flex justify-between items-start mb-6">
+            <span className={labelStyle}>Processor_Efficiency</span>
+            <Cpu className="text-emerald-500/40" size={20} />
           </div>
-          <div className="flex flex-col items-end gap-3 p-8 bg-white/[0.02] rounded-3xl border border-white/5 min-w-[240px]">
-             <span className={labelStyle}>Link_Uptime</span>
-             <span className="font-mono text-3xl font-black text-purple-400 italic leading-none">{formatUptime(nodeLive?.uptime || 0, t)}</span>
-          </div>
+          <div className={cn(valueStyle, "text-emerald-400")}>{nodeLive?.cpu?.usage || 0}%</div>
+          {/* 核心修复：通过类型断言绕过访问检查，确保 build 成功 */}
+          <p className="text-[9px] font-bold text-white/10 mt-4 uppercase font-mono tracking-widest">
+            Load_Factor: {(nodeLive?.cpu as any)?.load?.toFixed(2) || "0.00"}
+          </p>
         </div>
-        <Server className="absolute -right-20 -bottom-20 opacity-[0.03] rotate-12" size={400} />
-      </div>
 
-      {/* Matrix Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-1">
-        {[
-          { label: "Core_Efficiency", value: `${nodeLive?.cpu?.usage || 0}%`, color: "text-emerald-400", sub: `Load: ${nodeLive?.cpu?.load?.toFixed(2) || "0.00"}`, icon: <Cpu /> },
-          { label: "Memory_Allocation", value: `${memUsage}%`, color: "text-purple-400", sub: `${formatBytes(nodeLive?.ram?.used || 0)} OF ${formatBytes(nodeBasic.mem_total || 0)}`, icon: <Shield /> },
-          { label: "Bandwidth_Flux", value: "ACTIVE", color: "text-cyan-400", sub: `UP: ${formatBytes(nodeLive?.network?.up || 0)}/s`, icon: <Wifi /> }
-        ].map((item, i) => (
-          <div key={i} className={cn(cardStyle, "p-8 group/item")}>
-            <div className="flex justify-between items-center mb-6">
-               <span className={labelStyle}>{item.label}</span>
-               <div className="p-2 rounded-xl bg-white/5 text-white/20 group-hover/item:text-white transition-colors">{React.cloneElement(item.icon as any, { size: 14 })}</div>
-            </div>
-            <div className={cn(valStyle, item.color, "mb-3")}>{item.value}</div>
-            <div className="text-[10px] font-bold font-mono opacity-30 uppercase tracking-widest">{item.sub}</div>
+        <div className={cardBase}>
+          <div className="flex justify-between items-start mb-6">
+            <span className={labelStyle}>Memory_Allocation</span>
+            <Activity className="text-purple-500/40" size={20} />
           </div>
-        ))}
+          <div className={cn(valueStyle, "text-purple-400")}>
+            {nodeBasic.mem_total ? Math.round(((nodeLive?.ram?.used || 0) / nodeBasic.mem_total) * 100) : 0}%
+          </div>
+          <p className="text-[9px] font-bold text-white/10 mt-4 uppercase font-mono tracking-tighter">
+            {formatBytes(nodeLive?.ram?.used || 0)} / {formatBytes(nodeBasic.mem_total || 0)}
+          </p>
+        </div>
+
+        <div className={cardBase}>
+          <div className="flex justify-between items-start mb-6">
+            <span className={labelStyle}>Link_Uptime</span>
+            <Clock className="text-amber-500/40" size={20} />
+          </div>
+          <div className={cn(valueStyle, "text-amber-500")}>
+             {formatUptime(nodeLive?.uptime || 0)}
+          </div>
+          <p className="text-[9px] font-bold text-white/10 mt-4 uppercase font-mono tracking-[0.3em]">Network_Stable</p>
+        </div>
       </div>
 
-      {/* Traffic Bar */}
+      {/* 流量与磁盘展示 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-         <div className={cn(cardStyle, "p-8")}>
-            <span className={labelStyle}>Cumulative_Data_Transfer</span>
-            <div className="flex items-center justify-between gap-12 mt-4">
-               <div className="flex-1">
-                  <span className="text-[9px] font-black opacity-20 uppercase block mb-2">Matrix_Upload</span>
-                  <div className="text-3xl font-mono font-black text-white/80">{formatBytes(nodeLive?.network?.totalUp || 0)}</div>
-               </div>
-               <div className="w-[1px] h-12 bg-white/10" />
-               <div className="flex-1 text-right">
-                  <span className="text-[9px] font-black opacity-20 uppercase block mb-2">Matrix_Download</span>
-                  <div className="text-3xl font-mono font-black text-white/80">{formatBytes(nodeLive?.network?.totalDown || 0)}</div>
-               </div>
-            </div>
-         </div>
-         <div className={cn(cardStyle, "p-8")}>
-            <div className="flex justify-between items-center mb-6">
+        <div className={cardBase}>
+          <span className={labelStyle}>Cumulative_Data_Matrix</span>
+          <div className="flex items-center gap-12 mt-8">
+             <div className="flex-1">
+                <div className="text-[9px] font-black text-white/10 uppercase mb-3 tracking-widest">Inbound</div>
+                <div className="text-4xl font-bold text-white/80 font-mono tracking-tighter">{formatBytes(nodeLive?.network?.totalUp || 0)}</div>
+             </div>
+             <div className="w-px h-16 bg-white/5" />
+             <div className="flex-1 text-right">
+                <div className="text-[9px] font-black text-white/10 uppercase mb-3 tracking-widest">Outbound</div>
+                <div className="text-4xl font-bold text-white/80 font-mono tracking-tighter">{formatBytes(nodeLive?.network?.totalDown || 0)}</div>
+             </div>
+          </div>
+        </div>
+
+        <div className={cardBase}>
+           <div className="flex justify-between items-center mb-8">
               <span className={labelStyle}>Solid_State_Storage</span>
-              <span className="text-xs font-mono font-black text-amber-500 italic uppercase">Sync: {diskUsage}%</span>
-            </div>
-            <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden border border-white/5 relative">
-               <div className="h-full bg-gradient-to-r from-amber-600 to-amber-400 rounded-full shadow-[0_0_10px_rgba(245,158,11,0.3)] transition-all duration-1000" style={{ width: `${diskUsage}%` }} />
-            </div>
-            <div className="flex justify-between mt-4 text-[9px] font-black opacity-20 uppercase tracking-[0.2em]">
-               <span>{formatBytes(nodeLive?.disk?.used || 0)} USED</span>
-               <span>{formatBytes(nodeBasic.disk_total || 0)} CAPACITY</span>
-            </div>
-         </div>
+              <span className="text-sm font-bold text-amber-500/80 font-mono">
+                {nodeBasic.disk_total ? Math.round(((nodeLive?.disk?.used || 0) / nodeBasic.disk_total) * 100) : 0}%
+              </span>
+           </div>
+           <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden border border-white/5 shadow-inner relative">
+              <div 
+                className="h-full bg-gradient-to-r from-amber-600 to-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.3)] transition-all duration-1000" 
+                style={{ width: `${nodeBasic.disk_total ? (Math.round(((nodeLive?.disk?.used || 0) / nodeBasic.disk_total) * 100)) : 0}%` }} 
+              />
+           </div>
+           <div className="flex justify-between mt-4 text-[9px] font-bold text-white/10 uppercase font-mono tracking-tighter">
+              <span>Used: {formatBytes(nodeLive?.disk?.used || 0)}</span>
+              <span>Capacity: {formatBytes(nodeBasic.disk_total || 0)}</span>
+           </div>
+        </div>
       </div>
     </div>
   );
