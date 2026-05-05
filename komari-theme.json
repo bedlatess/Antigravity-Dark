@@ -1,11 +1,12 @@
 {
   "name": "Antigravity-Dark",
   "short": "Antigravity",
-  "description": "极简暗色二次元风格主题 (Based on Komari Next)",
-  "version": "1.1.8",
+  "description": "极简暗色二次元风格主题 - 重新定义监控美学。",
+  "version": "1.1.9",
   "author": "bedlatess",
   "url": "https://github.com/bedlatess/Antigravity-Dark",
   "preview": "preview.png",
+  "entry": "index.html",
   "configuration": {
     "type": "managed",
     "name": "主题与外观设置",
@@ -16,23 +17,23 @@
         "key": "backgroundImageUrl",
         "type": "string",
         "name": { "zh-CN": "全局背景壁纸 (URL)", "en-US": "Background Image URL" },
-        "help": { "zh-CN": "填入二次元壁纸直链，推荐暗色调风景", "en-US": "Anime wallpaper URL" },
+        "help": { "zh-CN": "填入二次元壁纸直链，建议使用 1080P 以上暗色图片", "en-US": "Anime wallpaper URL" },
         "default": ""
       },
       {
         "key": "glassOpacity",
         "type": "select",
         "name": { "zh-CN": "面板毛玻璃透明度", "en-US": "Glassmorphism Opacity" },
-        "options": "0.1,0.2,0.3,0.4,0.5,0.6,0.8,1.0",
-        "default": "0.3"
+        "options": "0.1,0.2,0.3,0.4,0.5,0.6",
+        "default": "0.2"
       },
       { "type": "title", "name": "卡片与视图 (Layout)" },
       {
         "key": "cardLayout",
         "type": "select",
         "name": { "zh-CN": "默认卡片布局", "en-US": "Default Card Layout" },
-        "default": "minimal",
-        "options": "classic,modern,minimal,detailed"
+        "default": "modern",
+        "options": "modern,classic"
       },
       {
         "key": "nodeViewMode",
