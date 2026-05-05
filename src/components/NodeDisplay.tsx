@@ -46,20 +46,18 @@ const NodeDisplay: React.FC<NodeDisplayProps> = ({ nodes, liveData }) => {
     const term = searchTerm.toLowerCase().trim();
     return result.filter((node) => {
       const basicMatch = node.name.toLowerCase().includes(term) || node.os.toLowerCase().includes(term);
-      
-      // 核心修复：兼容 tags 是字符串或数组的情况
       const tags = (node as any).tags;
-      let tagMatch = false;
+      const region = node.region?.toLowerCase() || "";
+      let tagMatch = region.includes(term);
       if (Array.isArray(tags)) {
-        tagMatch = tags.some(tag => tag.toLowerCase().includes(term));
+        tagMatch = tagMatch || tags.some(tag => tag.toLowerCase().includes(term));
       } else if (typeof tags === 'string') {
-        tagMatch = tags.toLowerCase().includes(term);
+        tagMatch = tagMatch || tags.toLowerCase().includes(term);
       }
-
-      const regionMatch = isRegionMatch(node.region, term);
+      const regionHelperMatch = isRegionMatch(node.region, term);
       const isOnline = liveData?.online?.includes(node.uuid) || false;
       const statusMatch = ((term === "online" || term === "在线") && isOnline) || ((term === "offline" || term === "离线") && !isOnline);
-      return basicMatch || tagMatch || regionMatch || statusMatch;
+      return basicMatch || tagMatch || regionHelperMatch || statusMatch;
     });
   }, [nodes, searchTerm, liveData, selectedGroup]);
 
@@ -74,36 +72,44 @@ const NodeDisplay: React.FC<NodeDisplayProps> = ({ nodes, liveData }) => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  const triggerClass = "px-4 py-1.5 rounded-full border border-white/5 data-[state=active]:border-purple-500/50 data-[state=active]:bg-purple-500/10 data-[state=active]:text-purple-400 text-[10px] font-bold transition-all";
+  // 样式定义提取，防止引号断裂
+  const inputClass = "pl-12 pr-12 h-12 bg-black/60 border-white/10 rounded-xl backdrop-blur-xl focus-visible:ring-purple-500/50 transition-all placeholder:text-white/10 text-sm font-medium";
+  const triggerClass = "px-4 py-1.5 rounded-full border border-white/5 data-[state=active]:border-purple-500/50 data-[state=active]:bg-purple-500/10 data-[state=active]:text-purple-400 text-[10px] font-black uppercase tracking-widest transition-all hover:bg-white/5";
+  const viewBtnBase = "h-8 px-4 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all";
 
   return (
     <div className="w-full space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-1000">
       <div className="flex flex-col gap-6">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div className="relative w-full md:max-w-md group">
-            <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-500/50 to-cyan-500/50 rounded-xl blur opacity-20 group-focus-within:opacity-60 transition duration-500"></div>
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-500/30 to-blue-500/30 rounded-xl blur opacity-20 group-focus-within:opacity-100 transition duration-500"></div>
             <div className="relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-white/20 group-focus-within:text-purple-400 transition-colors" />
               <Input
                 ref={searchRef}
-                placeholder="Filter nodes..."
+                placeholder="Search nodes, tags (CN/US), or regions..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-12 pr-12 h-12 bg-black/40 border-white/5 rounded-xl backdrop-blur-xl focus-visible:ring-purple-500/30 transition-all placeholder:text-white/10 text-sm"
+                className={inputClass}
               />
+              {searchTerm && (
+                <button onClick={() => setSearchTerm("")} className="absolute right-4 top-1/2 -translate-y-1/2 text-white/20 hover:text-white">
+                  <X size={16} />
+                </button>
+              )}
             </div>
           </div>
-          <div className="flex items-center gap-2 bg-white/5 p-1.5 rounded-xl border border-white/10">
+          <div className="flex items-center gap-2 bg-white/5 p-1.5 rounded-xl border border-white/10 backdrop-blur-md">
             <Button
               variant="ghost" size="sm"
-              className={cn("h-8 px-4 rounded-lg text-[10px] font-black uppercase tracking-widest", viewMode === "grid" ? "bg-purple-600 text-white" : "text-white/30")}
+              className={cn(viewBtnBase, viewMode === "grid" ? "bg-purple-600 text-white shadow-[0_0_15px_rgba(168,85,247,0.5)]" : "text-white/30")}
               onClick={() => setViewMode("grid")}
             >
               <Grid3X3 className="h-3.5 w-3.5 mr-2" /> Grid
             </Button>
             <Button
               variant="ghost" size="sm"
-              className={cn("h-8 px-4 rounded-lg text-[10px] font-black uppercase tracking-widest", viewMode === "table" ? "bg-purple-600 text-white" : "text-white/30")}
+              className={cn(viewBtnBase, viewMode === "table" ? "bg-purple-600 text-white shadow-[0_0_15px_rgba(168,85,247,0.5)]" : "text-white/30")}
               onClick={() => setViewMode("table")}
             >
               <Table2 className="h-3.5 w-3.5 mr-2" /> Table
@@ -115,11 +121,11 @@ const NodeDisplay: React.FC<NodeDisplayProps> = ({ nodes, liveData }) => {
           <div className="flex items-center gap-4 py-2 overflow-x-auto scrollbar-none">
             <div className="flex items-center gap-2 text-white/20">
               <Tag size={14} />
-              <span className="text-[10px] font-black uppercase tracking-tighter">Groups:</span>
+              <span className="text-[10px] font-black uppercase tracking-tighter">Filter Group:</span>
             </div>
             <Tabs value={selectedGroup} onValueChange={setSelectedGroup} className="w-auto">
               <TabsList className="bg-transparent h-auto p-0 gap-2">
-                <TabsTrigger value="all" className={triggerClass}>ALL_UNITS</TabsTrigger>
+                <TabsTrigger value="all" className={triggerClass}>ALL_SYSTEMS</TabsTrigger>
                 {groups.map((group) => (
                   <TabsTrigger key={group} value={group} className={triggerClass}>{group.toUpperCase()}</TabsTrigger>
                 ))}
@@ -130,11 +136,12 @@ const NodeDisplay: React.FC<NodeDisplayProps> = ({ nodes, liveData }) => {
       </div>
 
       <div className="min-h-[400px] relative">
-        <div className="absolute -top-6 right-0 flex items-center gap-2">
-           <span className="text-[9px] font-black text-white/20 tracking-widest uppercase">Matrix Results: {filteredNodes.length} / {nodes.length}</span>
+        <div className="absolute -top-6 right-0 flex items-center gap-2 px-3 py-1 bg-white/5 rounded-full border border-white/5">
+           <div className="size-1.5 rounded-full bg-purple-500 animate-pulse shadow-[0_0_8px_#a855f7]" />
+           <span className="text-[9px] font-black text-white/40 tracking-widest uppercase">Matrix: {filteredNodes.length} / {nodes.length} Units</span>
         </div>
         {filteredNodes.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-32 anime-card opacity-30 border-dashed border-white/10">
+          <div className="flex flex-col items-center justify-center py-32 anime-card opacity-30 border-dashed border-white/10 bg-black/20">
             <Filter className="h-12 w-12 mb-4 text-white/20" />
             <span className="text-xs font-black uppercase tracking-[0.4em] text-white/40">No Signal Detected</span>
           </div>
@@ -142,7 +149,7 @@ const NodeDisplay: React.FC<NodeDisplayProps> = ({ nodes, liveData }) => {
           viewMode === "grid" ? (
             <NodeGrid nodes={filteredNodes} liveData={liveData} />
           ) : (
-            <Suspense fallback={<div className="p-24 text-center"><div className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-purple-500 border-t-transparent" /></div>}>
+            <Suspense fallback={<div className="p-24 text-center opacity-50 font-black text-[10px] tracking-widest uppercase animate-pulse">Synchronizing Table...</div>}>
               <NodeTable nodes={filteredNodes} liveData={liveData} />
             </Suspense>
           )
