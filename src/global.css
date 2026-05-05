@@ -1,0 +1,36 @@
+@import "tailwindcss";
+
+@theme {
+  --color-glass-bg: rgba(0, 0, 0, 0.4);
+  --color-glass-border: rgba(255, 255, 255, 0.1);
+}
+
+@layer base {
+  body {
+    background-color: #0b0e14;
+    color: #e2e8f0; /* Manual hex for slate-200 compatibility */
+    font-variant-ligatures: none;
+    background-image: 
+      linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    background-size: 30px 30px;
+    background-attachment: fixed;
+  }
+}
+
+@layer components {
+  .anime-card {
+    background-color: var(--color-glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--color-glass-border);
+    border-radius: 0.75rem;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease-in-out;
+  }
+
+  .anime-card:hover {
+    border-color: rgba(255, 255, 255, 0.2);
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+}
