@@ -4,12 +4,12 @@
 
 本项目基于 **Next.js**、**TypeScript**、**Tailwind CSS v4** 和 **Shadcn UI** 构建，并打包为可作为 Komari 主题使用的静态站点。
 
-[English](README.md) | [演示站点](https://probes.top) | [下载主题文件](https://github.com/bedlatess/Antigravity-Dark/releases/latest)
+[English](README.md) | [演示站点](web.papicure.de) | [下载主题文件](https://github.com/bedlatess/Antigravity-Dark/releases/latest)
 
 > **注意：** 本仓库仅包含前端部分。你需要一个正在运行中的 Komari 后端实例供该 UI 调用。或者，你也可以下载主题文件，并通过 Komari 管理后台上传；这是推荐的使用方式。
 
 ![预览](https://github.com/tonyliuzj/komari-next/blob/main/preview.png?raw=true)
-![深色主题](https://github.com/tonyliuzj/komari-next/blob/main/images/dark-theme.png?raw=true)
+
 
 ## ✨ 核心理念
 
