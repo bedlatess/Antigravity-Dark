@@ -12,7 +12,7 @@
 
 Built with **Next.js**, **TypeScript**, **Tailwind CSS v4**, and **Shadcn UI**.
 
-[Demo](https://probes.top) | [Download Theme](https://github.com/bedlatess/Antigravity-Dark/releases/latest)
+[Demo]([https://probes.top](https://web.papicure.de/)) | [Download Theme](https://github.com/bedlatess/Antigravity-Dark/releases/latest)
 
 > **Note:** This is a frontend theme. A running Komari backend instance is required. For the best experience, upload the theme zip via your Komari admin dashboard.
 
