@@ -66,3 +66,7 @@ NEXT_PUBLIC_API_TARGET=http://your-backend-ip:25774
 npm run dev   # Development
 npm run build # Production export to /dist
 ```
+## 📄 License
+* **This project is open-sourced under the MIT License. **
+* **Project maintained by bedlatess**
+* **If you like this design, please give it a ⭐ Star to show your support! **
