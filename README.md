@@ -6,7 +6,7 @@
 
 <a name="english"></a>
 
-# Antigravity Dark (Komari-Next Edition)
+# Antigravity Dark 
 
 **Antigravity Dark** is a premium, high-performance frontend theme for the Komari monitoring project. Inspired by the concept of "Zero Gravity," it provides a floating, minimalist, and deeply immersive dark visual experience.
 
