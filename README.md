@@ -16,7 +16,7 @@ Built with **Next.js**, **TypeScript**, **Tailwind CSS v4**, and **Shadcn UI**.
 
 > **Note:** This is a frontend theme. A running Komari backend instance is required. For the best experience, upload the theme zip via your Komari admin dashboard.
 
-![preview](https://github.com/tonyliuzj/komari-next/blob/main/preview.png?raw=true)
+![preview](https://github.com/bedlatess/Antigravity-Dark/blob/main/preview.png?raw=true)
 
 ## ✨ Core Concepts
 
