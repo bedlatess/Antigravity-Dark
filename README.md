@@ -1,128 +1,68 @@
-# Komari-Next
+# Antigravity Dark 🌌
 
-Komari-Next is a modern frontend for the Komari monitoring project.  
-It is built with **Next.js**, **TypeScript**, **Tailwind CSS** and **Shadcn UI** and packaged as a static site that can be used as a Komari theme.
+[English](#english) | [简体中文](#chinese)
 
-[中文](https://github.com/tonyliuzj/komari-next/blob/main/README-CN.md)
+---
 
-[Demo](https://probes.top)
+<a name="english"></a>
 
-[Download theme file](https://github.com/tonyliuzj/komari-next/releases/latest/download/dist-release.zip)
+# Antigravity Dark (Komari-Next Edition)
 
-> This repository contains only the frontend. You will need a running Komari backend instance for the UI to talk to. Or you can download the theme file and upload it through Komari's admin dashboard, this would be the recommanded way.
+**Antigravity Dark** is a premium, high-performance frontend theme for the Komari monitoring project. Inspired by the concept of "Zero Gravity," it provides a floating, minimalist, and deeply immersive dark visual experience.
+
+Built with **Next.js**, **TypeScript**, **Tailwind CSS v4**, and **Shadcn UI**.
+
+[Demo](https://probes.top) | [Download Theme](https://github.com/bedlatess/Antigravity-Dark/releases/latest)
+
+> **Note:** This is a frontend theme. A running Komari backend instance is required. For the best experience, upload the theme zip via your Komari admin dashboard.
 
 ![preview](https://github.com/tonyliuzj/komari-next/blob/main/preview.png?raw=true)
-![dark-theme](https://github.com/tonyliuzj/komari-next/blob/main/images/dark-theme.png?raw=true)
 
-## Features
+## ✨ Core Concepts
 
-- Map! Map! Map!
-- Able to set settings in admin panel
-- Remaining Value Calculator
-- Real‑time dashboard for server and node status
-- Instance detail pages with load and latency charts
-- Node list and management views
-- Internationalization (i18n) with `react-i18next`
-- Responsive layout and dark mode using Shadcn + Tailwind CSS
-- Theme packaging suitable for Komari's theme system
-- **Extensive Customization Options:**
-  - **6 Color Themes:** Default, Ocean, Sunset, Forest, Midnight, Rose
-  - **4 Card Layouts:** Classic, Modern, Minimal, Detailed - each with unique visual designs and element positioning
-  - **4 Graph Designs:** Circle, Progress Bar, Bar Chart, Minimal - all following the selected color theme
-  - **Customizable Status Cards:** Show/hide individual metrics on the dashboard
-  - **Bring your own background!** Use an image URL to set it as the background.
-  - **Ping stats display** Show package information at homepage straight away!
-  - All settings persist locally and sync across theme changes
+- **Weightless UI**: Floating card designs and smooth transitions that define the "Antigravity" aesthetic.
+- **Deep Space Immersion**: A meticulously crafted dark mode that reduces eye strain while maintaining high contrast.
+- **Dynamic Visualization**: Real-time server status, latency charts, and global maps.
+- **Customizable DNA**: 6 Color themes and 4 unique card layouts to match your style.
 
-## Tech Stack
+## 🚀 Key Features
 
-- **Framework:** Next.js (App Router, static export)
-- **Language:** TypeScript, React
-- **UI:** Shadcn UI + Radix UI primitives, Tailwind CSS v4
-- **Charts:** Recharts
-- **State / Data:** Custom contexts, RPC2 client, fetch-based APIs
+- **Global View**: Interactive maps to monitor your nodes worldwide.
+- **Intelligent Dashboard**: Real-time stats for server load, uptime, and network latency.
+- **Advanced Customization**:
+  - **Themes**: Default, Ocean, Sunset, Forest, Midnight, Rose.
+  - **Layouts**: Classic, Modern, Minimal, Detailed.
+  - **Graphs**: Circle, Progress Bar, Bar Chart, Minimal.
+- **Remaining Value**: Integrated calculator for server costs and value.
+- **I18n Support**: Fully localized in multiple languages.
+- **Responsive**: Perfect experience on Desktop, Tablet, and Mobile.
 
-## Prerequisites
+## 🛠️ Tech Stack
 
-- **Node.js** 22 or newer (LTS recommended)
-- A running **Komari backend** (API) reachable from the browser
+- **Framework**: Next.js 15 (App Router, Static Export)
+- **Styling**: Tailwind CSS v4 + Shadcn UI (Radix UI)
+- **Charts**: Recharts
+- **Logic**: TypeScript, RPC2 Client
 
-## Getting Started
+## ⚙️ Development & Build
 
-- Simply [download theme file](https://github.com/tonyliuzj/komari-next/releases/latest/download/dist-release.zip) and upload it through Komari's admin dashboard, this would be the recommanded way.
+### Prerequisites
+- **Node.js** 22+
+- A running **Komari backend**
 
-## Dev
-
-Clone this repository and install dependencies:
-
+### 1. Setup
 ```bash
+git clone [https://github.com/bedlatess/Antigravity-Dark.git](https://github.com/bedlatess/Antigravity-Dark.git)
+cd Antigravity-Dark
 npm install
 ```
-
-### Configure API target
-
-The frontend talks to the Komari backend via `/api/*` rewrites configured in `next.config.ts`.  
-Set the backend base URL using `NEXT_PUBLIC_API_TARGET`:
-
-Create a `.env.local` file in the project root:
-
-```env
-NEXT_PUBLIC_API_TARGET=http://127.0.0.1:25774
-```
-
-Adjust the URL to point to your Komari backend instance.
-
-### Run in development
-
+### 2. Configure API
+Create a .env.local file:
 ```bash
-npm run dev
+NEXT_PUBLIC_API_TARGET=http://your-backend-ip:25774
 ```
-
-Then open `http://localhost:3000` in your browser.
-
-### Build for production / theme packaging
-
-This project is configured for static export (`output: "export"` in `next.config.ts`), with the build output written to `dist/`.
-
+### 3. Run & Build
 ```bash
-npm run build
+npm run dev   # Development
+npm run build # Production export to /dist
 ```
-
-After the build completes:
-
-- Serve the `dist` directory with any static web server, **or**
-- Use the contents of `dist` as part of a Komari theme bundle.
-
-## Theme Development
-
-This repository is designed to be used as a custom Komari theme.
-
-1. Configure and customize the UI as needed.
-2. Edit `komari-theme.json` to match your theme’s metadata and settings.
-3. Build the project:
-
-   ```bash
-   npm run build
-   ```
-
-4. The static assets will be generated in the `dist` directory.  
-   Combine them with `komari-theme.json` as required by Komari’s theme system and package them according to the Komari documentation.
-
-## Scripts
-
-- `npm run dev` – Start the Next.js development server
-- `npm run build` – Build the static site into `dist/`
-- `npm run lint` – Run ESLint over the project
-
-## Contributing
-
-Contributions are welcome.  
-If you find issues or have ideas for improvements, feel free to open an issue or submit a pull request.
-
-## Thanks
-[piphase/komari-nexus](https://github.com/piphase/komari-nexus)
-[fanchengliu/komari-next-pro](https://github.com/fanchengliu/komari-next-pro)
-
-## Star History
-
-[![Star History Chart](https://api.star-history.com/svg?repos=tonyliuzj/komari-next&type=date&legend=top-left)](https://www.star-history.com/#tonyliuzj/komari-next&type=date&legend=top-left)
