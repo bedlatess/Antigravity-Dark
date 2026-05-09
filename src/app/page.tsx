@@ -2,7 +2,7 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { Callouts } from "@/components/DashboardCallouts";
+// 删除了 Callouts 引用
 import DashboardContent from "@/components/DashboardContent";
 import { NavBar } from "@/components/NavBar";
 import Footer from "@/components/Footer";
@@ -17,12 +17,9 @@ export default function Home() {
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="flex flex-col gap-2"
+          className="flex flex-col gap-10" // 增加了间距感
         >
-          {/* 顶部的统计大屏卡片 */}
-          <Callouts />
-          
-          {/* 下方的服务器节点网格 */}
+          {/* 只保留 DashboardContent，它内部已经包含了统计卡片、地图和节点列表 */}
           <DashboardContent />
         </motion.div>
       </main>

@@ -2,7 +2,7 @@
 
 import React, { Suspense, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { Activity, ArrowUpRight, Zap, Box, Send, Cpu, CloudOff, AlertTriangle } from "lucide-react";
+import { Activity, ArrowUpRight, Zap, Send, Cpu, CloudOff, AlertTriangle } from "lucide-react";
 
 import NodeDisplay from "@/components/NodeDisplay";
 import { formatBytes } from "@/utils/unitHelper";
@@ -14,7 +14,7 @@ import { CurrentTimeCard } from "@/components/CurrentTimeCard";
 import { NodeMapView } from "@/components/NodeMapView";
 import { useStatusCardsVisibility } from "@/hooks/useStatusCardsVisibility";
 
-// --- 增强质感统计卡片 (完全正体/优化比例) ---
+// --- 增强质感统计卡片 ---
 const AnimeStatCard = ({ title, value, icon: Icon, color, subValue }: any) => (
   <div className="anime-card p-6 flex flex-col gap-4 group/card relative overflow-hidden min-h-[120px] bg-black/50 border border-white/5 hover:border-purple-500/40 transition-all duration-700 backdrop-blur-3xl shadow-[inset_0_0_30px_rgba(255,255,255,0.02)]">
     <div className="flex justify-between items-center relative z-10">
@@ -32,7 +32,7 @@ const AnimeStatCard = ({ title, value, icon: Icon, color, subValue }: any) => (
       >
         {value}
       </div>
-      {subValue && <span className="text-xs font-black text-white/10 uppercase font-mono">{subValue}</span>}
+      {subValue && <span className="text-[10px] font-bold text-white/10 uppercase font-mono">{subValue}</span>}
     </div>
     <div className="absolute -right-2 -bottom-4 opacity-[0.015] font-black text-6xl pointer-events-none select-none group-hover/card:opacity-[0.04] transition-all duration-1000 uppercase tracking-tighter">
       Matrix
@@ -62,20 +62,21 @@ export default function DashboardContent() {
     return () => clearInterval(interval);
   }, [refresh]);
 
-  // 核心统计逻辑
+  // 核心统计逻辑：确保在 nodeList 存在时计算
   const stats = useMemo(() => {
-    const data = live_data?.data?.data || {};
+    const rawData = live_data?.data?.data || {};
     const onlineUuids = new Set(live_data?.data?.online || []);
-    const totalCount = nodeList?.length || 0;
+    const totalNodes = nodeList || [];
     
     let highLoad = 0;
     let traffic = 0;
     let speed = 0;
 
-    nodeList?.forEach(node => {
+    totalNodes.forEach(node => {
       if (onlineUuids.has(node.uuid)) {
-        const nodeStats = data[node.uuid];
+        const nodeStats = rawData[node.uuid];
         if (nodeStats) {
+          // CPU 负载超过 80% 计为高负载
           if ((nodeStats.cpu?.usage || 0) > 80) highLoad++;
           traffic += (nodeStats.network?.totalUp || 0) + (nodeStats.network?.totalDown || 0);
           speed += (nodeStats.network?.down || 0);
@@ -85,21 +86,21 @@ export default function DashboardContent() {
 
     return {
       online: onlineUuids.size,
-      offline: Math.max(0, totalCount - onlineUuids.size),
+      offline: Math.max(0, totalNodes.length - onlineUuids.size), // 修复 0 的逻辑[cite: 1]
       highLoad,
       traffic,
       speed,
-      total: totalCount
+      total: totalNodes.length
     };
   }, [live_data, nodeList]);
 
   if (isLoading) return <Loading />;
-  if (error) return <div className="p-12 text-center font-black uppercase text-rose-400">Error_Access_Denied</div>;
+  if (error) return <div className="p-12 text-center font-black uppercase text-rose-400 anime-card">Error_Access_Denied</div>;
 
   return (
     <div className="flex flex-col gap-10 w-full animate-in fade-in slide-in-from-bottom-6 duration-1000 px-4 sm:px-0">
       
-      {/* 1. 核心状态统计 - 只有一行 */}
+      {/* 1. 核心状态统计 */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         <AnimeStatCard 
           title="Nodes_Online" 
@@ -128,7 +129,7 @@ export default function DashboardContent() {
         />
       </div>
 
-      {/* 2. 辅助数据统计 */}
+      {/* 2. 系统时间与流量 */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
          <div className="anime-card p-6 flex flex-col justify-center min-h-[120px] border border-white/5 bg-black/50 backdrop-blur-3xl shadow-[inset_0_0_30px_rgba(255,255,255,0.02)]">
              <span className="text-[10px] font-black text-purple-400 uppercase tracking-[0.3em] mb-4 leading-none">System_Clock_Sync</span>
@@ -176,6 +177,7 @@ export default function DashboardContent() {
 
       <AnimeDivider />
 
+      {/* 5. 节点列表 - 只有列表 */}
       <div className="relative min-h-[400px]">
         <Suspense fallback={<Loading />}>
           <NodeDisplay nodes={nodeList ?? []} liveData={live_data?.data ?? { online: [], data: {} }} />
